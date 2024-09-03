@@ -1,0 +1,64 @@
+.data
+	mensaje1: .asciiz "Ingrese el índice de secuencia\n"
+	mensaje2: .asciiz "El valor de Fibonacci es:\n"
+	mensaje:  .asciiz "El valor de Fibonacci es:\n"
+
+.text
+# imprimir 1 mensaje
+	li $v0, 4
+	la $a0, mensaje1
+	syscall
+	
+	beq $v0, 0, igual_a_cero  
+
+# Leer cadena
+	li $v0, 5
+	syscall
+
+# llamar fibonacci
+	move $a0, $v0
+	jal fibonacci
+	move $a1, $v0 # guarda valor de retorno en a1
+
+# imprimir 2 mensaje
+	li $v0, 4
+	la $a0, mensaje2
+	syscall
+
+# imprimir el resultado
+	li $v0, 1
+	move $a0, $a1
+	syscall
+
+# salida
+	li $v0, 10
+	syscall
+
+
+
+## Funcion int fibonacci (int n)
+fibonacci:
+	addi $sp, $sp, -12
+	sw $ra, 8($sp)
+	sw $s0, 4($sp)
+	sw $s1, 0($sp)
+	move $s0, $a0
+	li $v0, 1 			# valor de retorno para la condición terminal
+	ble $s0, 0x2, fibonacciExit 	# verificar condición terminal
+	addi $a0, $s0, -1 		# establece argumentos para la llamada recursiva a f(n - 1 )
+	jal fibonacci
+	move $s1, $v0		 	# almacenar el resultado de f(n - 1 ) en s1
+	addi $a0, $s0, -2 		# establece argumentos para la llamada recursiva a f(n - 2 )
+	jal fibonacci
+	add $v0, $s1, $v0 		# agrega el resultado de f(n - 1 )
+fibonacciExit:
+	lw $ra, 8($sp)
+	lw $s0, 4($sp)
+	lw $s1, 0($sp)
+	addi $sp, $sp, 12
+	jr $ra
+## Fin de la función fibonacci
+igual_a_cero:
+li $v0, 4
+la $a0, mensaje
+syscall
